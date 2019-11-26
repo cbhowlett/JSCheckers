@@ -1,10 +1,12 @@
 
 class checkersBoard {
+	
 	constructor(ctx){
 		this.positions = [['10','30','50','70', '01','21','41','61', '12','32','52','72'], ['17','37','57','77', '06','26','46','66', '15','35','55','75']];
 		this.positionsDefault = [...this.positions];
 		this.ctx = ctx;
 		this.letters = ['A','B','C','D','E','F','G','H'];
+		
 	}
 	
 	drawPieces(){
@@ -73,53 +75,41 @@ class checkersBoard {
 
 	update(){
 		function connect(board){
-			var xhttp = new XMLHttpRequest();
-			xhttp.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
+			$(function(){$.get('checkers.txt', function(data,status){
+				if(status == 'success'){
 					this.board = board;
 					this.positionsDefault = [['10','30','50','70', '01','21','41','61', '12','32','52','72'], ['17','37','57','77', '06','26','46','66', '15','35','55','75']];
-					var response = this.responseText.split('<br>');
+					var response = data.split('<br>');
 					var index = 0;
 					for(index = 0; index < response.length -1 && response.length >= 2; index++){
 						var movement = response[index].split('');
 						this.board.move(movement[0],movement[1],movement[2],movement[3],movement[4],this.board.positions);
 						
-				}
-					
-					if(response.length < 2){
-						
-						this.board.positions = this.positionsDefault.slice(0);
-						this.board.drawPieces();
-						
 					}
+					
+					if(response.length < 2){this.board.positions = this.positionsDefault.slice(0);}
+					
+					this.board.drawPieces();
 				}
-			};
-		xhttp.open('GET', 'checkers.txt?t=' + Math.random(), true);
-		xhttp.send();	
-		
+			});});
 		}
-		setInterval(connect,250, this);
+		setInterval(connect,50, this);
 		
 	}
 	
 	mes(){
-		var message = document.getElementById('move').value;
-		var name = document.getElementById('player').value;
-		var xhttp = new XMLHttpRequest();
-		xhttp.open('GET', 'canvas.php?message='+String(name)+String(message), true);
-		xhttp.send();
+		var moveCoord = String(document.getElementById('move').value);
+		var name = String(document.getElementById('player').value);
+		$(function(){$.post('canvas.php',{message:name+moveCoord}, function(data,status){});});
 		document.getElementById('move').value = '';
 		document.getElementById('player').value = '';
 	}
 	
 	
 	resetBoard(){
-		var xhttp = new XMLHttpRequest();
-		xhttp.open('GET', 'canvas.php?kill='+'true', true);
-		xhttp.send();
+		$(function(){$.post('canvas.php',{kill:'true'},function(data,status){});});
 		
 		
 		
 	}
 	}
- 
